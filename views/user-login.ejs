@@ -1,0 +1,27 @@
+<h4 class="for-login">Login</h4>
+
+<form method="post" action="/login" id="login">
+  <input type="hidden" name="_csrf" />
+  <div class="form-group">
+    <input type="text" class="form-control" placeholder="Enter Email" id="email" name="email" data-rule-required="true"
+      data-msg-required="Please enter Email address." data-rule-email="true"
+      data-msg-email="Please enter valid Email address.">
+  </div>
+  <div class="form-group">
+    <input type="password" class="form-control" placeholder="Password" id="password" name="password" type="password"
+      data-rule-required="true" data-msg-required="Please enter Password.">
+  </div>
+  <div class="forgot-pass-link">
+    <a href="/Forgot-password">Forgot Password?</a>
+  </div>
+  <!-- <div class="form-group">
+      <div class="g-recaptcha" data-sitekey="6Lc9U-sZAAAAABxp4fLpjUtR6vvEVX96g3hnuXcn"></div>
+    </div> -->
+
+
+  <div class="btn-gorup">
+    <button type="submit" id="submit_login" class="btn btn-common">Login</button>
+    <!-- <a href="buyer-dashboard" class="btn btn-common">Login</a> -->
+    <div class="new-link-submit">Create a new acount? <a href="/signup"> Sign Up</a></div>
+  </div>
+</form>
