@@ -4,7 +4,7 @@ const is_user_login = require("../middleware/login_middleware")
 const User = require("../model/User");
 
 router.get("/", (req, res) => {
-    res.send(` <h1> Welcome to Utopia ICO</h1> `);
+    res.render('index.ejs');
 });
 
 router.get("/user-dashboard", is_user_login.check_user_login, async (req, res) => {

@@ -7,16 +7,13 @@ const bodyParser = require('body-parser');
 
 var crypto = require('crypto');
 
-router.use(bodyParser.urlencoded({ extended: true }))
-router.use(bodyParser.json())
-
 router.get("/login", function (req, res) {
     console.log("get login")
     //err_msg = req.flash('err_msg');
     // success_msg = req.flash('success_msg');
     var test = req.session.is_user_logged_in;
     if (test != undefined || test === true) {
-        res.redirect('/');
+        res.redirect('/user-dashboard');
     } else {
         res.render('user-login')
     }
@@ -38,14 +35,13 @@ router.post('/login', async function (req, res) {
         //req.flash('err_msg', 'Please enter valid Email address.');
         res.redirect('/login')
     } else {
-        //console.log(user.username)
         req.session.success = true;
         req.session.is_user_logged_in = true;
         req.session.re_us_id = user._id;
         req.session.re_usr_email = user.email;
         req.session.name = user.name;
         //console.log(user);
-        console.log(req.session)
+        //console.log(req.session)
         res.redirect('/user-dashboard')
     }
 })
@@ -58,9 +54,6 @@ router.get("/logout", function (req, res) {
     //req.flash('success_logout', 'You have logged out successfully.');
     res.redirect('/');
 })
-
-
-
 
 router.get("/signup", function (req, res) {
     //err_msg = req.flash('err_msg');
