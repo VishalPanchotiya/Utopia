@@ -23,6 +23,7 @@ UsersSchema = new mongoose.Schema({
 	phone: {
 		type: String
 	},
+	isVerified: { type: Boolean, default: false },
 	password: {
 		type: String
 	}

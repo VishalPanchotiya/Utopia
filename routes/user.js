@@ -2,8 +2,10 @@
 const express = require("express")
 const router = express.Router()
 const User = require("../model/User");
-const session = require('express-session');
-const bodyParser = require('body-parser');
+const { sendResetPasswordMail } = require("../userController/resetPassword")
+const { loginPost } = require("../userController/loginPost")
+const { signupPost } = require("../userController/signupPost")
+
 
 var crypto = require('crypto');
 
@@ -19,35 +21,12 @@ router.get("/login", function (req, res) {
     }
 })
 
-//request to store user data from registration page 
+
 router.post('/login', async function (req, res) {
-    console.log(req.session)
-    console.log("login post")
-    const password = req.body.password;
-    const iv = crypto.randomBytes(16)
-    const mykey = crypto.createCipher('aes-128-cbc', 'key', iv)
-    var mystr = mykey.update(password, 'utf8', 'hex')
-    mystr += mykey.final('hex');
-    //console.log(mystr)
-    let user = await User.findOne({ 'email': req.body.email, 'password': mystr });
-    if (user == null) {
-        console.log("user nahi mila");
-        //req.flash('err_msg', 'Please enter valid Email address.');
-        res.redirect('/login')
-    } else {
-        req.session.success = true;
-        req.session.is_user_logged_in = true;
-        req.session.re_us_id = user._id;
-        req.session.re_usr_email = user.email;
-        req.session.name = user.name;
-        //console.log(user);
-        //console.log(req.session)
-        res.redirect('/user-dashboard')
-    }
+    await loginPost(req, res);
 })
 
 router.get("/logout", function (req, res) {
-
     req.session.destroy(function (err) {
         console.log("User_logged_out")
     });
@@ -67,41 +46,27 @@ router.get("/signup", function (req, res) {
     }
 })
 
-//request to store user data from registration page 
 router.post('/signup', async function (req, res) {
-    const email = req.body.email;
-    const password = req.body.password;
-    const name = req.body.name
-    const code = req.body.country_code
-    const phone = req.body.phone
-    // var mykey = crypto.createCipher('aes-128-cbc', 'mypass');
-    const iv = crypto.randomBytes(16)
-    const mykey = crypto.createCipher('aes-128-cbc', 'key', iv)
-    var mystr = mykey.update(password, 'utf8', 'hex')
-    mystr += mykey.final('hex');
+    await signupPost(req, res);
+})
 
-    const user = await User.findOne({ email: email })
 
-    if (user != null && user != "" && user != undefined) {
-        // req.flash('err_msg', 'This email already registerd.');
-        res.redirect("/signup");
-    } else {
-        us = {
-            name: name,
-            email: email,
-            country_code: code,
-            phone: phone,
-            password: mystr,
-        }
-        User.create(us, (err, us1) => {
-            if (err) {
-                console.log(err);
-                res.redirect('/signup');
-            } else {
-                console.log(us1)
-                res.redirect('/login');
-            }
-        })
+
+router.get("/forget-password", function (req, res) {
+    res.render('user-forget-password')
+})
+
+router.post("/forget-password", async function (req, res) {
+    console.log(req.body.password)
+    let user = await User.findOne({ 'email': req.body.email });
+    if (user == null) {
+        console.log("user nahi mila");
+        //req.flash('err_msg', 'Please enter valid Email address.');
+        res.redirect('/forgetpassword')
+    }
+    else {
+        const mail = sendResetPasswordMail(user.email)
+        res.send(`check inbox of ${user.email}`)
     }
 })
 
