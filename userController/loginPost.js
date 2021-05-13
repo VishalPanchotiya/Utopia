@@ -1,7 +1,6 @@
 const crypto = require('crypto');
 const User = require("../model/User");
 
-
 const loginPost = async function (req, res) {
     console.log(req.session)
     console.log("login post")
@@ -17,6 +16,9 @@ const loginPost = async function (req, res) {
         //req.flash('err_msg', 'Please enter valid Email address.');
         res.redirect('/login')
     } else {
+        if (user.isVerified == false) {
+            res.redirect('/activateAccount')
+        }
         req.session.success = true;
         req.session.is_user_logged_in = true;
         req.session.re_us_id = user._id;

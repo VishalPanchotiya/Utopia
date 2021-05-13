@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/Utopia");
 const bodyParser = require("body-parser");
 const session = require('express-session');
+const { PORT } = require("./config/test");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -22,4 +23,4 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexroutes);
 
-app.listen(3001, () => console.log("App listening on port 3001!"));
+app.listen(PORT, () => console.log(`App listening on port ${PORT}!`));

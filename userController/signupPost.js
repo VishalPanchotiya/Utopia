@@ -1,5 +1,8 @@
 const crypto = require('crypto');
 const User = require("../model/User");
+//const { sendResetPasswordMail } = require("../userController/resetPassword")
+const { sendActivationMail } = require("../userController/activateAccount")
+
 
 const signupPost = async function (req, res) {
     const email = req.body.email;
@@ -32,7 +35,9 @@ const signupPost = async function (req, res) {
                 res.redirect('/signup');
             } else {
                 console.log(us1)
-                res.redirect('/login');
+                sendActivationMail(us1)
+                res.send('<h1>Please check your inbox to activate account</h1>')
+
             }
         })
     }

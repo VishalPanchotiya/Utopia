@@ -2,12 +2,13 @@
 const express = require("express")
 const router = express.Router()
 const User = require("../model/User");
+const activationToken = require("../model/activationToken");
 const { sendResetPasswordMail } = require("../userController/resetPassword")
 const { loginPost } = require("../userController/loginPost")
 const { signupPost } = require("../userController/signupPost")
+const { sendActivationMail } = require("../userController/activateAccount")
 
-
-var crypto = require('crypto');
+const crypto = require('crypto');
 
 router.get("/login", function (req, res) {
     console.log("get login")
@@ -50,10 +51,38 @@ router.post('/signup', async function (req, res) {
     await signupPost(req, res);
 })
 
-
-
 router.get("/forget-password", function (req, res) {
     res.render('user-forget-password')
+})
+
+router.get("/activate/user/:id", async function (req, res) {
+    const tokenId = req.params.id
+    console.log(tokenId)
+    let token = await activationToken.findOne({ '_id': tokenId });
+    if (token == null) {
+        console.log("Can not find activationToken");
+        res.send(
+            `<h2>Activation link deactivated Resend Activation mail</h2>`
+        )
+    }
+    else {
+        let user = await User.findOne({ '_id': token._userId });
+        user.isVerified = true;
+        user.save();
+        res.send(`Account activated successfully`)
+    }
+})
+
+router.get("/activateAccount", function (req, res) {
+    res.render("activateAccount")
+})
+
+router.post("/activateAccount", async function (req, res) {
+    let user = await User.findOne({ 'email': req.body.email })
+    if (user == null) {
+        res.send(`<h2>${req.body.email} is not registered email address</h2>`)
+    }
+    sendActivationMail(user)
 })
 
 router.post("/forget-password", async function (req, res) {
@@ -66,7 +95,7 @@ router.post("/forget-password", async function (req, res) {
     }
     else {
         const mail = sendResetPasswordMail(user.email)
-        res.send(`check inbox of ${user.email}`)
+        res.send(`check inbox of ${user.email} `)
     }
 })
 
