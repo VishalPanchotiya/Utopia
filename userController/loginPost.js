@@ -13,7 +13,7 @@ const loginPost = async function (req, res) {
     let user = await User.findOne({ 'email': req.body.email, 'password': mystr });
     if (user == null) {
         console.log("user note found");
-        //req.flash('err_msg', 'Please enter valid Email address.');
+        req.flash('err_msg', 'Please enter valid Email address.');
         res.redirect('/login')
     } else {
         if (user.isVerified == false) {

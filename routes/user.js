@@ -1,6 +1,9 @@
 
 const express = require("express")
 const router = express.Router()
+
+const flash = require('req-flash');
+
 const User = require("../model/User");
 const activationToken = require("../model/activationToken");
 const { sendResetPasswordMail } = require("../userController/resetPassword")
