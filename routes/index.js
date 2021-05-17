@@ -3,10 +3,11 @@ const router = express.Router();
 var homeroutes = require("./home.js");
 const userRoute = require("./user.js");
 const tokenRoute = require("./contractMethodsRoutes");
-
+const flash = require('req-flash');
+router.use(flash());
 router.use('/', homeroutes);
 
-router.use("/user", userRoute);
+router.use(userRoute);
 
 router.use("/token", tokenRoute);
 
