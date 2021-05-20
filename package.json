@@ -17,6 +17,7 @@
     "express-session": "^1.17.1",
     "mongoose": "^5.12.7",
     "nodemailer": "^6.6.0",
+    "otp-generator": "^2.0.0",
     "path": "^0.12.7",
     "req-flash": "0.0.3",
     "validator": "^13.6.0",

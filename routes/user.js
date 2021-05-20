@@ -1,10 +1,11 @@
 
 const express = require("express")
 const router = express.Router()
+const forgetPassword = require("../model/forgetPasswordToken");
 
 const User = require("../model/User");
 const activationToken = require("../model/activationToken");
-const { sendResetPasswordMail } = require("../userController/resetPassword")
+const { sendOTPMail } = require("../userController/sendOTPmail")
 const { loginPost } = require("../userController/loginPost")
 const { signupPost } = require("../userController/signupPost")
 const { sendActivationMail } = require("../userController/activateAccount")
@@ -62,10 +63,6 @@ router.post('/signup', async function (req, res) {
     await signupPost(req, res);
 })
 
-router.get("/forget-password", function (req, res) {
-    res.render('user-forget-password')
-})
-
 router.get("/activate/user/:id", async function (req, res) {
     const tokenId = req.params.id
     console.log(tokenId)
@@ -78,7 +75,7 @@ router.get("/activate/user/:id", async function (req, res) {
         let user = await User.findOne({ '_id': token._userId });
         user.isVerified = true;
         user.save();
-        res.flash("success_msg", "Account activated successfully! You can Login")
+        req.flash("success_msg", "Account activated successfully! You can Login")
     }
 })
 
@@ -103,18 +100,47 @@ router.post("/activateAccount", async function (req, res) {
     }
 })
 
+router.get("/forget-password", function (req, res) {
+    err_msg = req.flash('err_msg');
+    success_msg = req.flash('success_msg');
+    res.render('user-forget-password')
+})
+
 router.post("/forget-password", async function (req, res) {
-    console.log(req.body.password)
     let user = await User.findOne({ 'email': req.body.email });
     if (user == null) {
-        console.log("user nahi mila");
-        //req.flash('err_msg', 'Please enter valid Email address.');
-        res.redirect('/forgetpassword')
+        req.flash('err_msg', 'Please enter valid Email,this email is not registered');
+        return res.redirect('/forget-password')
     }
     else {
-        const mail = sendResetPasswordMail(user.email)
-        res.send(`check inbox of ${user.email}`)
+        const mail = await sendOTPMail(user, req, res)
+
     }
 })
 
+router.get("/verifyOTPForgetPassword/:id", function (req, res) {
+    let id = req.params.id
+    success_msg = req.flash('success_msg');
+    err_msg = req.flash('err_msg');
+    res.render('verifyOTPForgetPassword', { userid: id })
+})
+
+router.post("/verifyOTP/:id", async function (req, res) {
+    console.log(req.body)
+    console.log(req.params)
+    let token = await forgetPassword.findOne({ '_userId': req.params.id });
+    if (token == null) {
+        req.flash('err_msg', 'Oops! OTP insert seems to be expired');
+        res.redirect('/forget-password')
+    }
+    else {
+        if (token.OTP != req.body.OTP) {
+            req.flash('err_msg', 'Oops! seems like you have entered invalid OTP');
+            res.redirect(`/verifyOTPForgetPassword/${req.params.id}`)
+        }
+        else {
+            res.send("Update Password Form")
+        }
+    }
+})
 module.exports = router
