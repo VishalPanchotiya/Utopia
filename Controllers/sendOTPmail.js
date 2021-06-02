@@ -7,26 +7,38 @@ const otpGenerator = require('otp-generator')
 
 otpGenerator.generate(6, { upperCase: false, specialChars: false });
 
+async function resetResend(user_id) {
+    const token = await forgetPassword.findOne({ '_userId': user_id })
+    token.resend = true
+    token.save();
+    console.log("user can req to resend otp", token)
+}
+
 const sendOTPMail = async function (user, req, res) {
-    const token = await forgetPassword.findOne({ '_userId': user._id })
+    const token1 = await forgetPassword.findOne({ '_userId': user._id })
     let forgetPasswordTokenId;
     let otp = await otpGenerator.generate(6, { upperCase: false, specialChars: false });
     //console.log(token)
-    if (token != null) {
+    if (token1 != null && token1.resend == false) {
+        if (token1.resend != null) {
 
-        req.flash('err_msg', 'We have sended you an OTP,You can regenerate OTP after some time');
-        res.redirect(`/verifyOTPForgetPassword/${user._id}`)
+            req.flash('err_msg', 'We have sended you an OTP,You can regenerate OTP after 120 sec');
+            res.redirect(`/verifyOTPForgetPassword/${user._id}`)
+        }
     }
     else {
-        await forgetPassword.create({
+        if (token1 != null) await token1.delete();
+
+        forgetPassword.create({
             OTP: otp,
             _userId: user._id,
             email: user.email,
+            resend: true
         }, (err, forgetPasswordToken) => {
             if (err) {
+
                 // console.log(err);
-                console.log("yaha error hai")
-                req.flash('err_msg', 'You can regenerate OTP after some timeS');
+                req.flash('err_msg', 'Opps! Something went wrong please resubmit');
                 res.redirect("/forget-password")
             } else {
                 console.log(`ForgetPasswordToken token generated for ${user.name}`);
@@ -42,7 +54,10 @@ const sendOTPMail = async function (user, req, res) {
             <p> <h2>${otp}</h2></p>
             <p>This will be valid for 3 mins</p>
             <p>Team Utopia</p>`;
-                sendMail(reciever, subject, message);
+                sendMail(reciever, subject, message)
+                forgetPasswordToken.resend = false;
+                forgetPasswordToken.save();
+                setTimeout(function () { resetResend(user._id); }, 120000);
                 req.flash('success_msg', 'OTP has been sent to your Email,Please check your Inbox or Spam');
                 res.redirect(`/verifyOTPForgetPassword/${user._id}`)
             }

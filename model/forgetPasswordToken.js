@@ -5,6 +5,9 @@ const tokenSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    resend: {
+        type: Boolean
+    },
     _userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'users' },
     email: {
         type: String,

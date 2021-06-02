@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const User = require("../model/User");
 //const { sendResetPasswordMail } = require("../userController/resetPassword")
-const { sendActivationMail } = require("../userController/activateAccount")
+const { sendActivationMail } = require("../Controllers/activateAccount")
 const isMailValid = require("../services/isMailValid");
 
 const signupPost = async function (req, res) {

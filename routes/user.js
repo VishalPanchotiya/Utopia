@@ -5,10 +5,10 @@ const forgetPassword = require("../model/forgetPasswordToken");
 
 const User = require("../model/User");
 const activationToken = require("../model/activationToken");
-const { sendOTPMail } = require("../userController/sendOTPmail")
-const { loginPost } = require("../userController/loginPost")
-const { signupPost } = require("../userController/signupPost")
-const { sendActivationMail } = require("../userController/activateAccount")
+const { sendOTPMail } = require("../Controllers/sendOTPmail")
+const { loginPost } = require("../Controllers/loginPost")
+const { signupPost } = require("../Controllers/signupPost")
+const { sendActivationMail } = require("../Controllers/activateAccount")
 
 const crypto = require('crypto');
 const session = require("express-session");
@@ -41,7 +41,6 @@ router.get("/logout", function (req, res) {
         if (err) { }
         else {
             console.log("User_logged_out")
-
             res.redirect('/logout2');
         }
     });
@@ -76,6 +75,7 @@ router.get("/activate/user/:id", async function (req, res) {
         user.isVerified = true;
         user.save();
         req.flash("success_msg", "Account activated successfully! You can Login")
+        res.redirect('/login')
     }
 })
 
