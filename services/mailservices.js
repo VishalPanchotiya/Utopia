@@ -3,7 +3,6 @@ const { MAIL, PASS } = require("../config/test");
 
 const emailExistence = require('email-existence')
 
-
 let transport = nodemailer.createTransport({
     service: "Gmail",
     auth: {
@@ -21,10 +20,10 @@ const sendMail = async (reciever, subject, message) => {
     };
     transport.sendMail(detial, function (err, info) {
         if (err) {
-            console.log(err)
+            console.log(err);
         } else {
-            console.log(info)
-            console.log(`${reciever}  ${subject} mail is sended please check your mailbox`)
+            console.log(info);
+            console.log(`${reciever}  ${subject} mail is sended please check your mailbox`);
         }
     });
 }

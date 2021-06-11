@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-var indexroutes = require("./routes");
+const indexroutes = require("./routes");
 const app = express();
 const mongoose = require("mongoose");
 mongoose.connect("mongodb://localhost/Utopia");

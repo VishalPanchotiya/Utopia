@@ -11,9 +11,9 @@ let transport = nodemailer.createTransport({
 });
 const sendMail = async (reciever, subject, message) => {
     const detial = {
-        from: MAIL, // Sender address
-        to: reciever,         // List of recipients
-        subject: subject, // Subject line
+        from: MAIL,          // Sender address
+        to: reciever,        // List of recipients
+        subject: subject,   // Subject line
         html: message
     };
     transport.sendMail(detial, function (err, info) {
