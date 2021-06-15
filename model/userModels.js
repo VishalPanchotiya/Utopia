@@ -265,6 +265,83 @@ const refferaltokenSchema = new mongoose.Schema({
 refferalToken = mongoose.model('refferalTokens', refferaltokenSchema);
 
 
+var tokenTransactionSchema = new mongoose.Schema({
+
+	Tx_hash: {
+		type: String
+	},
+	Amount: {
+		type: Number
+	},
+	From: {
+		type: String
+	},
+	To: {
+		type: String
+	},
+	status: {
+		type: String
+	},
+	user_status: {
+		type: String,
+		enum: ['Active', 'Inactive'],
+		default: 'Active'
+	},
+	created_at: {
+		type: Date
+	},
+
+	created_by: {
+
+		type: Number,
+		default: 0
+	},
+
+	deleted_at: {
+		type: Date,
+		default: null
+	},
+
+	deleted_by: {
+
+		type: String,
+		default: null
+	},
+
+	updated_at: {
+
+		type: Date,
+		default: null
+	},
+
+	updated_by: {
+
+		type: String,
+		default: 0
+	},
+
+	deleted: {
+
+		type: String,
+		enum: ['0', '1'],
+		default: '0'
+	},
+	tokens: [{
+		access: {
+			type: String,
+			required: true
+		},
+		token: {
+
+			type: String,
+			required: true
+		}
+
+	}]
+});
+
+tokenTansactionInfo = mongoose.model('tokenTransactionSchema', tokenTransactionSchema);
+
 /*const tokenSchema = new mongoose.Schema({
 	_userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
 	token: { type: String, required: true },
@@ -277,5 +354,6 @@ module.exports = {
 	activationTokens,
 	forgetPasswordTokens,
 	Userwallet,
-	refferalToken
+	refferalToken,
+	tokenTransactionSchema
 }

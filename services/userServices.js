@@ -161,7 +161,6 @@ const loginPost = async function (req, res) {
         req.flash('err_msg', 'Email address is not registered');
         res.redirect('/login')
     } else {
-
         if (user.isVerified == false) {
             req.flash('err_msg', 'Your Account is not activated Please enter detials to activate account');
             res.redirect('/activateAccount')

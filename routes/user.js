@@ -28,7 +28,7 @@ router.post('/login', async function (req, res) {
 router.get("/logout2", async (req, res) => {
     req.flash('success_msg', 'You have logged out successfully.');
     console.log(req.session)
-    res.redirect('user/login');
+    res.redirect('/login');
 })
 
 router.get("/logout", function (req, res) {
@@ -36,7 +36,7 @@ router.get("/logout", function (req, res) {
         if (err) { }
         else {
             console.log("User_logged_out")
-            res.redirect('user/logout2');
+            res.redirect('/logout2');
         }
     });
 })
@@ -64,14 +64,14 @@ router.get("/activate/user/:id", async function (req, res) {
     if (token == null) {
         console.log("Can not find activationToken");
         req.flash("err_msg", `Activation link deactivated Please enter detials to get Activation mail`)
-        res.redirect("user/activateAccount")
+        res.redirect("/activateAccount")
     }
     else {
         let user = await Users.findOne({ '_id': token._userId });
         user.isVerified = true;
         await user.save();
         req.flash("success_msg", "Account activated successfully! You can Login")
-        res.redirect('user/login')
+        res.redirect('/login')
     }
 })
 
@@ -85,17 +85,17 @@ router.post("/activateAccount", async function (req, res) {
     let user = await Users.findOne({ 'email': req.body.email })
     if (user == null) {
         req.flash("err_msg", `${req.body.email} is not registered email address Please signup first to create account`)
-        res.redirect('user/activateAccount')
+        res.redirect('/activateAccount')
     }
     else if (user.isVerified == true) {
         req.flash("success_msg", `${user.name} Your account is already activated, You can Login`)
-        res.redirect('user/login')
+        res.redirect('/login')
     }
     else {
         console.log('94 activate Account')
         await userServices.sendActivationMail(user)
         req.flash("success_msg", `${user.name} We have sent an Activation link to you please check your Email to activate your account`)
-        res.redirect('user/login')
+        res.redirect('/login')
     }
 })
 
@@ -110,7 +110,7 @@ router.post("/forget-password", async function (req, res) {
 
     if (user == null) {
         req.flash('err_msg', 'Please enter valid Email,this email is not registered');
-        return res.redirect('user/forget-password')
+        return res.redirect('/forget-password')
     }
     else {
         let user_id = user._id
