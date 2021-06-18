@@ -15,7 +15,6 @@ UsersSchema = new mongoose.Schema({
 		trim: true,
 		unique: true,
 		validate: {
-
 			validator: validator.isEmail,
 			message: '{VALUE} Entered Invalid Email'
 		}
@@ -28,18 +27,18 @@ UsersSchema = new mongoose.Schema({
 	country_code: {
 		type: String
 	},
+	country: {
+		type: String
+	},
 	state: {
-
 		type: String,
 		default: null
 	},
 	city: {
-
 		type: String,
 		default: null
 	},
 	dob: {
-
 		type: String,
 		default: null
 	},
@@ -336,11 +335,29 @@ var tokenTransactionSchema = new mongoose.Schema({
 			type: String,
 			required: true
 		}
-
 	}]
 });
 
 tokenTansactionInfo = mongoose.model('tokenTransactionSchema', tokenTransactionSchema);
+
+var RefCodeschema = mongoose.Schema({
+	my_ref_code: {
+		type: String
+	},
+	reg_ref_code: {
+		type: String
+	},
+	status: {
+		type: String,
+		default: "Not used"
+	},
+	user_id: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User_registration'
+	}
+})
+
+var RefCode = mongoose.model('RefCode', RefCodeschema);
 
 /*const tokenSchema = new mongoose.Schema({
 	_userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
@@ -355,5 +372,6 @@ module.exports = {
 	forgetPasswordTokens,
 	Userwallet,
 	refferalToken,
-	tokenTransactionSchema
+	tokenTransactionSchema,
+	RefCode
 }

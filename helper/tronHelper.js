@@ -12,7 +12,6 @@ const contractAddress = Contract.address;
 const address = Contract.ownerAddress;
 const abi = Contract.abi
 
-
 const adminTransferToken = async function (to, amount) {
     let contract = await tronWeb.contract(abi).at(contractAddress)
     //console.log(contract)
@@ -52,12 +51,10 @@ const trxBalance = async function (address) {
     return balance.toString()
 }
 
-
 const trxTransfer = async function (to, amount, from) {
     let trx = await tronWeb.trx.sendTransaction(to, amount, privateKey);
     console.log(trx)
 }
-
 
 const trxTransfer1 = async function (to, amount, from) {
     //not working just creating rawtransaction
@@ -79,10 +76,10 @@ const getTransaction = async function (transactionHash) {
     return trx.ret[0]
 }
 
-const createAccount = async function () {
+const createWallet = async function () {
     let accountObject = await tronWeb.createAccount()
-    console.log('New Account', accountObject)
-    return accountObject
+    console.log('New Account', accountObject.privateKey)
+    return accountObject.privateKey
 }
 
 const addressFromPrivatekey = async function (key) {
@@ -110,7 +107,7 @@ module.exports =
     totalSupply,
     trxBalance,
     trxTransfer,
-    createAccount,
     getTransaction,
+    createWallet,
     addressFromPrivatekey
 }

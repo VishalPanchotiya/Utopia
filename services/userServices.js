@@ -1,9 +1,46 @@
 const crypto = require('crypto');
 const mailServices = require("../services/mailServices")
 const { SERVERIP, PORT } = require("../config/test");
-const { activationTokens, forgetPasswordTokens, Users } = require("../model/userModels");
+const { activationTokens, forgetPasswordTokens, Users, RefCode } = require("../model/userModels");
 const otpGenerator = require('otp-generator')
 const userHelper = require("../helper/userHelper")
+
+const checkUser = async function (email) {
+    const user = await Users.findOne({ email: email })
+    if (user) {
+        return user
+    }
+    else {
+        return false
+    }
+}
+
+const checkUserFromId = async function (id) {
+    const user = await Users.findOne({ _id: id })
+    if (user) {
+        return user
+    }
+    else {
+        return false
+    }
+}
+
+const referData = async (ref_code, ref_link, id, created) => {
+    const referObject = {
+        my_ref_code: ref_code,
+        reg_ref_code: ref_link,
+        created_at: created,
+        user_id: id
+    };
+    try {
+        const refData = new RefCode(referObject);
+        await refData.save();
+        return referObject;
+    } catch (error) {
+        console.log("Error", error.message);
+    }
+};
+
 
 const generateActivationToken = async function (newuser) {
     let tokenObject = {
@@ -45,7 +82,6 @@ const generateForgetPasswordToken = async function (user) {
     await token.save()
     return token
 }
-
 
 const sendActivationMail = async function (newuser) {
     let activationTokenId = await generateActivationToken(newuser)
@@ -190,9 +226,77 @@ const loginPost = async function (req, res) {
     }
 }
 
+const updateProfile = async function (req, res) {
+    let user_id = req.session.re_us_id
+    let name = req.body.name.trim();
+    let email = req.body.email.trim();
+    let mob = req.body.phone.trim();
+    let dob = req.body.dob.trim();
+    let country = req.body.country.trim();
+    let city = req.body.city.trim();
+
+    Users.updateOne({ _id: user_id }, { $set: { name: name, email: email, phone: mob, dob: dob, country: country, city: city } }, { upsert: true }, function (err, result) {
+        if (err) {
+            console.log("Something went wrong");
+            req.flash('err_msg', 'Something went wrong, please try again.');
+            res.redirect('/profile')
+        } else {
+            req.flash('success_msg', 'Profile updated successfully.');
+            res.redirect('/profile')
+        }
+    });
+}
+
+
+const updateUserPassword = async function (id, password) {
+    user = await checkUserFromId(id)
+    mystr = await createCipher(password)
+    user.password = mystr;
+    let result = await user.save().then(succ => {
+        //console.log(`241 userServisces updatePassword ${succ}`)
+        return true
+    }).catch(err => {
+        console.log(err);
+        return false
+    })
+    console.log(result)
+    return result
+}
+
+const changePassword = async function (req, res) {
+    id = req.session.re_us_id
+    user = await checkUserFromId(id)
+    let currentPassword = req.body.currentPassword
+    let currentPasswordCipher = await createCipher(currentPassword)
+    if (user.password == currentPasswordCipher) {
+        let newPassword = req.body.newPassword
+        let confPassword = req.body.confPassword
+        if (newPassword == confPassword) {
+            result = await updateUserPassword(id, newPassword)
+            if (result) {
+                req.flash('success_msg', 'Password updated successfully.');
+                res.redirect('/profile')
+            }
+            else {
+                req.flash('err_msg', 'Something went wrong Please retry');
+                res.redirect('/profile')
+            }
+        }
+        else {
+            req.flash('err_msg', 'New password not confirmed correctly please retry');
+            res.redirect('/profile')
+        }
+    }
+    else {
+        req.flash('err_msg', 'Entered Wrong Current Password');
+        res.redirect('/profile')
+    }
+}
 
 
 module.exports = {
+    checkUser,
+    checkUserFromId,
     generateActivationToken,
     generateForgetPasswordToken,
     sendActivationMail,
@@ -200,5 +304,8 @@ module.exports = {
     signupPost,
     loginPost,
     otpexpire,
-    createCipher
+    createCipher,
+    updateUserPassword,
+    updateProfile,
+    changePassword
 }

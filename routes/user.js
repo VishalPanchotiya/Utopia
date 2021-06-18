@@ -1,4 +1,3 @@
-
 const express = require("express")
 const crypto = require('crypto');
 const session = require("express-session");
@@ -6,7 +5,7 @@ const router = express.Router()
 const { activationTokens, forgetPasswordTokens, Users } = require("../model/userModels");
 const { sendOTPMail } = require("../Controllers/sendOTPmail")
 const userServices = require("../services/userServices")
-const is_user_login = require("../middleware/isUserLoggedIn")
+const is_user_loggedin = require("../middleware/isUserLoggedIn")
 
 
 router.get("/login", function (req, res) {
@@ -105,6 +104,26 @@ router.get("/forget-password", function (req, res) {
     res.render('user-forget-password')
 })
 
+
+router.get("/profile", is_user_loggedin, async function (req, res) {
+    err_msg = req.flash('err_msg');
+    success_msg = req.flash('success_msg');
+    id = req.session.re_us_id
+    user = await userServices.checkUserFromId(id)
+    if (user) {
+        res.render('front/profile', { user, err_msg, success_msg })
+    }
+    else {
+        req.session.destroy();
+        req.flash("err_msg", `Something went wrong please login once again`)
+        res.redirect('/login')
+    }
+})
+
+router.post("/update-profile", is_user_loggedin, userServices.updateProfile)
+
+router.post("/change-password", is_user_loggedin, userServices.changePassword)
+
 router.post("/forget-password", async function (req, res) {
     let user = await Users.findOne({ 'email': req.body.email });
 
@@ -121,16 +140,52 @@ router.post("/forget-password", async function (req, res) {
     }
 })
 
-router.get("/user-update-Password", is_user_login.check_user_login, async function (req, res) {
-    res.send("Update Password Page")
+router.get("/user-update-Password", is_user_loggedin, async function (req, res) {
+    err_msg = req.flash('err_msg');
+    success_msg = req.flash('success_msg');
+    res.render("updatePassword", { err_msg, success_msg })
 })
 
-router.post("/user-update-Password", is_user_login.check_user_login, async function (req, res) {
-    console.log(req.body)
+
+
+router.post("/user-update-Password", is_user_loggedin, async function (req, res) {
+    //console.log(req.body)
+    let password = req.body.password
+    let confpassword = req.body.conf
+    id = req.session.re_us_id
+    user = await userServices.checkUserFromId(id)
+    if (user && user != '' && user != undefined) {
+        if (password == confpassword) {
+            let result = await userServices.updateUserPassword(id, password);
+            if (result) {
+                req.flash("success_msg", 'Password updated Successfully')
+                res.redirect('/profile')
+            }
+            else {
+                req.flash("err_msg", `Something went wrong please retry to update password`)
+                res.redirect('/user-update-Password')
+            }
+        }
+        else {
+            req.flash("err_msg", `Password and Confirmed Password should be same`)
+            res.redirect('/user-update-Password')
+        }
+    }
+    else {
+        req.session.destroy();
+        req.flash("err_msg", `Something went wrong please login once again`)
+        res.redirect('/login')
+    }
 })
 
-
-// router.get("/verifyOTPForgetPassword/:id", async function (req, res) {
+router.get("/referral-table", is_user_loggedin, async (req, res) => {
+    err_msg = req.flash('err_msg');
+    success_msg = req.flash('success_msg');
+    let user = await Users.findOne({ 'email': req.session.re_usr_email, '_id': req.session.re_us_id });
+    res.render('front/referral-table', { user });
+})
+// router.
+//get("/verifyOTPForgetPassword/:id", async function (req, res) {
 //     let id = req.params.id
 //     //const timeleft = await userServices.otpexpire(req.params.id)
 //     //console.log(timeleft);
