@@ -26,12 +26,16 @@ router.get("/setting-you-wallet", is_user_loggedin, async (req, res) => {
 
 router.get('/Create-wallet', is_user_loggedin, blockchainController.createWallet);
 
+router.post("/Verify-key", is_user_loggedin, blockchainController.verifyWallet)
+
+router.post("/verify-private-key", is_user_loggedin, async (req, res) => { })
 
 
 router.get("/transaction-table", is_user_loggedin, async (req, res) => {
     let user = await Users.findOne({ 'email': req.session.re_usr_email, '_id': req.session.re_us_id });
     res.render('front/transaction-table', { user });
 })
+
 
 router.get("/kyc", is_user_loggedin, async (req, res) => {
     let user = await Users.findOne({ 'email': req.session.re_usr_email, '_id': req.session.re_us_id });

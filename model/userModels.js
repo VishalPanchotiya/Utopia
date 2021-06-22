@@ -18,10 +18,8 @@ UsersSchema = new mongoose.Schema({
 			validator: validator.isEmail,
 			message: '{VALUE} Entered Invalid Email'
 		}
-
 	},
 	phone: {
-
 		type: String
 	},
 	country_code: {
@@ -56,16 +54,11 @@ UsersSchema = new mongoose.Schema({
 		type: String,
 		expire_at: { type: Date, default: Date.now, expires: 20 }
 	},
-
 	ref_code: {
-
 		type: String,
-
 	},
 	ref_from: {
-
 		type: String,
-
 	},
 	dataURL: {
 
@@ -165,7 +158,6 @@ var Userwalletschema = mongoose.Schema({
 		type: String,
 		default: null
 	},
-
 	updated_at: {
 
 		type: String,
